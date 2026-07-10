@@ -24,10 +24,14 @@ class UserProfile:
     Represents a user's taste preferences.
     Required by tests/test_recommender.py
     """
-    favorite_genre: str
-    favorite_mood: str
-    target_energy: float
-    likes_acoustic: bool
+    favorite_artist: str | None = None
+    favorite_genre: str | None = None
+    favorite_mood: str | None = None
+    target_energy: float | None = None
+    target_bpm: float | None = None
+    target_valence: float | None = None
+    target_danceability: float | None = None
+    target_acousticness: float | None = None
 
 class Recommender:
     """
