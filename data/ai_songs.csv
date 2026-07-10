@@ -1,0 +1,11 @@
+id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
+11,Golden Hour Highway,Crimson Fade,country,nostalgic,0.58,102,0.68,0.55,0.45
+12,City Lights Anthem,Bass Ritual,hip hop,confident,0.85,95,0.72,0.91,0.08
+13,Island Breeze,Solar Tide,reggae,playful,0.55,88,0.83,0.76,0.40
+14,Iron Fist,Steel Vortex,metal,angry,0.97,168,0.30,0.52,0.03
+15,Autumn Sonata,Elena Voss,classical,melancholic,0.30,66,0.35,0.20,0.95
+16,Desert Bloom,Wandering Roots,folk,warm,0.45,96,0.74,0.48,0.80
+17,Velvet Nights,Marlowe Grey,r&b,romantic,0.50,84,0.70,0.68,0.42
+18,Neon Pulse Rave,Kilowatt,edm,euphoric,0.96,128,0.88,0.93,0.04
+19,Delta Crossroads,Otis Blackwood,blues,sad,0.33,70,0.28,0.38,0.65
+20,Fiesta Nocturna,Salsa Roja,latin,festive,0.80,180,0.90,0.94,0.15
