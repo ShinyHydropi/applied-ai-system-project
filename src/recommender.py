@@ -74,14 +74,51 @@ def load_songs(*csv_paths: str) -> List[Dict]:
                 })
     return songs
 
+CATEGORICAL_SONG_FIELDS = {"genre", "mood", "artist"}
+CATEGORICAL_MISMATCH_ERROR = 0.2
+
+
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """
     Scores a single song against user preferences.
     Required by recommend_songs() and src/main.py
+
+    Lower scores are better matches. For each preference the caller
+    specifies, we compute an error against the song's value:
+      - categorical features (genre, mood, artist) get an error of 0.0
+        for an exact match, otherwise a fixed 0.2
+      - numerical features (energy, tempo_bpm, valence, danceability,
+        acousticness) get an error of (target - actual)
+    The final score is the mean of those errors squared (MSE), so
+    missing all preferences closely is favored over nailing a few and
+    ignoring the rest.
     """
-    # TODO: Implement scoring logic using your Algorithm Recipe from Phase 2.
-    # Expected return format: (score, reasons)
-    return []
+    errors = []
+    reasons = []
+
+    for key, target in user_prefs.items():
+        if target is None or key not in song:
+            continue
+
+        actual = song[key]
+
+        if key in CATEGORICAL_SONG_FIELDS:
+            if str(actual).lower() == str(target).lower():
+                errors.append(0.0)
+                reasons.append(f"{key} matches ({actual})")
+            else:
+                errors.append(CATEGORICAL_MISMATCH_ERROR)
+                reasons.append(f"{key} doesn't match (wanted {target}, got {actual})")
+        else:
+            error = target - actual
+            errors.append(error)
+            reasons.append(f"{key} target {target}, actual {actual} (off by {abs(error):.2f})")
+
+    if not errors:
+        return 0.0, ["No preferences specified"]
+
+    mse = sum(error ** 2 for error in errors) / len(errors)
+    return mse, reasons
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
     """
