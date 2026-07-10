@@ -17,7 +17,7 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-My design will be rule-based recommendation system that scores each song based on how closely it matches a user's preferences. For numerical features, score will be calculated with mean square error in order to prioritize matching all features closely over matching some features exactly and some weakly. For categorical features, since a comprehensive model of relationships between catagories would probably require a neural network, exact matches will be treated as an error of 0 and anything else as an error of 0.2. Rankings are determined by lowest to highest MSE.
+My design will be rule-based recommendation system that scores each song based on how closely it matches a user's preferences. For numerical features, score will be calculated with mean square error in order to prioritize matching all features closely over matching some features exactly and some weakly. For categorical features, since a comprehensive model of relationships between catagories would probably require a neural network, exact matches will be treated as an error of 0 and anything else as an error of 0.2. This fixed error may result in the recommender worrying more about matching numerical features than categorical features. Rankings are determined by lowest to highest MSE.
 
 ---
 
@@ -61,12 +61,22 @@ You can add more tests in `tests/test_recommender.py`.
 Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
 
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
+Top recommendations:
+
+Sunrise City - Score: 0.00
+Because: genre matches (pop); mood matches (happy); energy target 0.8, actual 0.82 (off by 0.02)
+
+Rooftop Lights - Score: 0.01
+Because: genre doesn't match (wanted pop, got indie pop); mood matches (happy); energy target 0.8, actual 0.76 (off by 0.04)
+
+Gym Hero - Score: 0.02
+Because: genre matches (pop); mood doesn't match (wanted happy, got intense); energy target 0.8, actual 0.93 (off by 0.13)
+
+Fiesta Nocturna - Score: 0.03
+Because: genre doesn't match (wanted pop, got latin); mood doesn't match (wanted happy, got festive); energy target 0.8, actual 0.8 (off by 0.00)
+
+City Lights Anthem - Score: 0.03
+Because: genre doesn't match (wanted pop, got hip hop); mood doesn't match (wanted happy, got confident); energy target 0.8, actual 0.85 (off by 0.05)
 ```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
