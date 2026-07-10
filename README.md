@@ -17,17 +17,7 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
-
-Some prompts to answer:
-
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
-
-You can include a simple diagram or bullet list if helpful.
+My design will be rule-based recommendation system that scores each song based on how closely it matches a user's preferences. For numerical features, score will be calculated with mean square error in order to prioritize matching all features closely over matching some features exactly and some weakly. For categorical features, since a comprehensive model of relationships between catagories would probably require a neural network, exact matches will be treated as an error of 0 and anything else as an error of 0.2. Rankings are determined by lowest to highest MSE.
 
 ---
 
