@@ -2,22 +2,13 @@
 
 ## Project Summary
 
-In this project you will build and explain a small music recommender system.
-
-Your goal is to:
-
-- Represent songs and a user "taste profile" as data
-- Design a scoring rule that turns that data into recommendations
-- Evaluate what your system gets right and wrong
-- Reflect on how this mirrors real world AI recommenders
-
-Replace this paragraph with your own summary of what your version does.
+This system is intendended to be used to find new music for a user to enjoy. Songs output by this system are ranked according to user preferences. 
 
 ---
 
 ## How The System Works
 
-My design will be rule-based recommendation system that scores each song based on how closely it matches a user's preferences. For numerical features, score will be calculated with mean square error in order to prioritize matching all features closely over matching some features exactly and some weakly. For categorical features, since a comprehensive model of relationships between catagories would probably require a neural network, exact matches will be treated as an error of 0 and anything else as an error of 0.2. This fixed error may result in the recommender worrying more about matching numerical features than categorical features. Rankings are determined by lowest to highest MSE.
+My design will be rule-based recommendation system that scores each song based on how closely it matches a user's preferences. For numerical features, score will be calculated with mean square error (MSE) in order to prioritize matching all features closely over matching some features exactly and some weakly. For categorical features, since a comprehensive model of relationships between catagories would probably require a neural network, exact matches will be treated as an error of 0 and anything else as an error of 0.2. This fixed error may result in the recommender worrying more about matching numerical features than categorical features. Rankings are determined by lowest to highest MSE.
 
 ---
 
@@ -91,20 +82,13 @@ One experiment I tried was using profiles with only some features included. Due 
 
 ## Limitations and Risks
 
-One weakness of the model is that it cannot dynamically tune its model to improve its recommendations. Thus, it must rely on a user's own interpretation of features. Additionally, it cannot adapt with a change in user preferences without the user adjusting the themselves
+One weakness of the model is that it cannot dynamically tune itself to improve its recommendations. Thus, it must rely on a user's own interpretation of features. Additionally, it cannot adapt with a change in user preferences without the user adjusting the themselves
 
 ---
 
 ## Reflection
 
-Read and complete `model_card.md`:
-
-[**Model Card**](model_card.md)
-
-Write 1 to 2 paragraphs here about what you learned:
-
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
+Through this assignment, I learned that recommendation models have to balance the importance of many features when recommending songs to users. In working on this project, I continued honing my skills with prompting AI assistants on generating code. I have noticed that the AI is requiring less prompts to acheive the results I am intending.
 
 
 
