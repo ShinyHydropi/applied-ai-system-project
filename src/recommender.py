@@ -77,6 +77,12 @@ def load_songs(*csv_paths: str) -> List[Dict]:
 CATEGORICAL_SONG_FIELDS = {"genre", "mood", "artist"}
 CATEGORICAL_MISMATCH_ERROR = 0.2
 
+# tempo_bpm lives on a ~60-180 scale while the other numeric features
+# (energy, valence, danceability, acousticness) are all 0-1. Dividing its
+# error by this range brings it back down to roughly the same scale so it
+# doesn't dominate the MSE.
+TEMPO_BPM_RANGE = 200.0
+
 
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """
@@ -87,8 +93,10 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     specifies, we compute an error against the song's value:
       - categorical features (genre, mood, artist) get an error of 0.0
         for an exact match, otherwise a fixed 0.2
-      - numerical features (energy, tempo_bpm, valence, danceability,
-        acousticness) get an error of (target - actual)
+      - numerical features (energy, valence, danceability, acousticness)
+        get an error of (target - actual)
+      - tempo_bpm gets that same error normalized by TEMPO_BPM_RANGE, since
+        it's on a much larger scale than the other numeric features
     The final score is the mean of those errors squared (MSE), so
     missing all preferences closely is favored over nailing a few and
     ignoring the rest.
@@ -111,8 +119,8 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
                 reasons.append(f"{key} doesn't match (wanted {target}, got {actual})")
         else:
             error = target - actual
-            errors.append(error)
             reasons.append(f"{key} target {target}, actual {actual} (off by {abs(error):.2f})")
+            errors.append(error / TEMPO_BPM_RANGE if key == "tempo_bpm" else error)
 
     if not errors:
         return 0.0, ["No preferences specified"]
