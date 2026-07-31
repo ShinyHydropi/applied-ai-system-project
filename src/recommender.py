@@ -83,14 +83,26 @@ CATEGORICAL_MISMATCH_ERROR = 0.2
 # doesn't dominate the MSE.
 TEMPO_BPM_RANGE = 200.0
 
+# Maps each UserProfile field to the song dict key it's compared against.
+_PROFILE_TO_SONG_FIELD = {
+    "favorite_artist": "artist",
+    "favorite_genre": "genre",
+    "favorite_mood": "mood",
+    "target_energy": "energy",
+    "target_bpm": "tempo_bpm",
+    "target_valence": "valence",
+    "target_danceability": "danceability",
+    "target_acousticness": "acousticness",
+}
 
-def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
+
+def score_song(user_profile: UserProfile, song: Dict) -> Tuple[float, List[str]]:
     """
-    Scores a single song against user preferences.
+    Scores a single song against a UserProfile's preferences.
     Required by recommend_songs() and src/main.py
 
-    Lower scores are better matches. For each preference the caller
-    specifies, we compute an error against the song's value:
+    Lower scores are better matches. For each preference the profile sets
+    (i.e. not None), we compute an error against the song's value:
       - categorical features (genre, mood, artist) get an error of 0.0
         for an exact match, otherwise a fixed 0.2
       - numerical features (energy, valence, danceability, acousticness)
@@ -104,23 +116,24 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     errors = []
     reasons = []
 
-    for key, target in user_prefs.items():
-        if target is None or key not in song:
+    for profile_field, song_field in _PROFILE_TO_SONG_FIELD.items():
+        target = getattr(user_profile, profile_field)
+        if target is None or song_field not in song:
             continue
 
-        actual = song[key]
+        actual = song[song_field]
 
-        if key in CATEGORICAL_SONG_FIELDS:
+        if song_field in CATEGORICAL_SONG_FIELDS:
             if str(actual).lower() == str(target).lower():
                 errors.append(0.0)
-                reasons.append(f"{key} matches ({actual})")
+                reasons.append(f"{song_field} matches ({actual})")
             else:
                 errors.append(CATEGORICAL_MISMATCH_ERROR)
-                reasons.append(f"{key} doesn't match (wanted {target}, got {actual})")
+                reasons.append(f"{song_field} doesn't match (wanted {target}, got {actual})")
         else:
             error = target - actual
-            reasons.append(f"{key} target {target}, actual {actual} (off by {abs(error):.2f})")
-            errors.append(error / TEMPO_BPM_RANGE if key == "tempo_bpm" else error)
+            reasons.append(f"{song_field} target {target}, actual {actual} (off by {abs(error):.2f})")
+            errors.append(error / TEMPO_BPM_RANGE if song_field == "tempo_bpm" else error)
 
     if not errors:
         return 0.0, ["No preferences specified"]
@@ -129,7 +142,7 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     return mse, reasons
 
 def recommend_songs(
-    user_prefs: Dict,
+    user_profile: UserProfile,
     songs: List[Dict],
     k: int = 5,
     explain_fn: Optional[Callable[[Dict, List[str], float], str]] = None,
@@ -138,7 +151,7 @@ def recommend_songs(
     Functional implementation of the recommendation logic.
     Required by src/main.py
 
-    Scores every song against user_prefs and returns the k lowest-scoring
+    Scores every song against user_profile and returns the k lowest-scoring
     (best-matching) songs, sorted from best to worst.
 
     explain_fn, if given, turns each song's (song, reasons, score) into the
@@ -147,7 +160,7 @@ def recommend_songs(
     """
     scored = []
     for song in songs:
-        score, reasons = score_song(user_prefs, song)
+        score, reasons = score_song(user_profile, song)
         if explain_fn is not None:
             explanation = explain_fn(song, reasons, score)
         else:
