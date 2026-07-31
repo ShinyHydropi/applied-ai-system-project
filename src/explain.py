@@ -100,7 +100,7 @@ def generate_explanation(song: Dict, reasons: List[str], score: float) -> str:
     prompt = _build_prompt(song, reasons, score)
     try:
         response = _get_client().models.generate_content(
-            model="gemini-3.6-flash",
+            model="gemini-3.5-flash-lite",
             contents=prompt,
             config=types.GenerateContentConfig(
                 max_output_tokens=100,

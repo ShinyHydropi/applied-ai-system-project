@@ -9,8 +9,8 @@ You will implement the functions in recommender.py:
 - recommend_songs
 """
 
-from recommender import load_songs, recommend_songs, UserProfile
-from explain import generate_explanation
+from src.recommender import load_songs, recommend_songs, UserProfile
+from src.explain import generate_explanation
 
 
 def profile_to_prefs(profile: UserProfile) -> dict:
@@ -80,7 +80,7 @@ def main() -> None:
             songs,
             explain_fn=explain_fn,
         )
-
+"""
     # --- Adversarial / edge case profiles ---
     # These aren't "realistic" users. They're crafted to probe whether
     # score_song/recommend_songs holds up under contradictory, empty, or
@@ -134,7 +134,7 @@ def main() -> None:
 
     for label, profile in adversarial_cases:
         print_recommendations(label, profile, songs)
-
+"""
 
 if __name__ == "__main__":
     main()
