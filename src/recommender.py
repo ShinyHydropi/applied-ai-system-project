@@ -1,5 +1,5 @@
 import csv
-from typing import List, Dict, Tuple, Optional
+from typing import Callable, List, Dict, Tuple, Optional
 from dataclasses import dataclass
 
 @dataclass
@@ -128,18 +128,30 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     mse = sum(error ** 2 for error in errors) / len(errors)
     return mse, reasons
 
-def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
+def recommend_songs(
+    user_prefs: Dict,
+    songs: List[Dict],
+    k: int = 5,
+    explain_fn: Optional[Callable[[Dict, List[str], float], str]] = None,
+) -> List[Tuple[Dict, float, str]]:
     """
     Functional implementation of the recommendation logic.
     Required by src/main.py
 
     Scores every song against user_prefs and returns the k lowest-scoring
     (best-matching) songs, sorted from best to worst.
+
+    explain_fn, if given, turns each song's (song, reasons, score) into the
+    explanation string instead of the default "; ".join(reasons) template —
+    e.g. src.explain.generate_explanation for an LLM-written explanation.
     """
     scored = []
     for song in songs:
         score, reasons = score_song(user_prefs, song)
-        explanation = "; ".join(reasons)
+        if explain_fn is not None:
+            explanation = explain_fn(song, reasons, score)
+        else:
+            explanation = "; ".join(reasons)
         scored.append((song, score, explanation))
 
     scored.sort(key=lambda entry: entry[1])

@@ -10,6 +10,7 @@ You will implement the functions in recommender.py:
 """
 
 from recommender import load_songs, recommend_songs, UserProfile
+from explain import generate_explanation
 
 
 def profile_to_prefs(profile: UserProfile) -> dict:
@@ -26,9 +27,9 @@ def profile_to_prefs(profile: UserProfile) -> dict:
     }
 
 
-def print_recommendations(label: str, profile: UserProfile, songs: list, k: int = 5) -> None:
+def print_recommendations(label: str, profile: UserProfile, songs: list, k: int = 5, explain_fn=None) -> None:
     user_prefs = profile_to_prefs(profile)
-    recommendations = recommend_songs(user_prefs, songs, k=k)
+    recommendations = recommend_songs(user_prefs, songs, k=k, explain_fn=explain_fn)
 
     print(f"\n=== {label} ===\n")
     for rec in recommendations:
@@ -69,7 +70,16 @@ def main() -> None:
     )
 
     for profile in (pop, rock, jazz):
-        print_recommendations(f"Top recommendations for {profile.favorite_genre} fan", profile, songs)
+        # The jazz profile gets LLM-generated explanations (src/explain.py) as
+        # a demo of the generative-AI explanation path; the rest use the
+        # default templated explanation so the simulation stays API-free.
+        explain_fn = generate_explanation if profile is jazz else None
+        print_recommendations(
+            f"Top recommendations for {profile.favorite_genre} fan",
+            profile,
+            songs,
+            explain_fn=explain_fn,
+        )
 
     # --- Adversarial / edge case profiles ---
     # These aren't "realistic" users. They're crafted to probe whether
