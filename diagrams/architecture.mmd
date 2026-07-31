@@ -1,0 +1,43 @@
+flowchart TD
+    subgraph INPUT["Input"]
+        CSV1[data/songs.csv]
+        CSV2[data/ai_songs.csv]
+        PROF["UserProfile\n(preferences, incl. adversarial edge cases)"]
+    end
+
+    CSV1 --> LOAD["load_songs()\nrecommender.py"]
+    CSV2 --> LOAD
+    LOAD --> SCORE
+
+    subgraph PROCESS["Process"]
+        SCORE["score_song()\nrule-based retriever\n(categorical + numeric MSE)"]
+        RANK["recommend_songs()\nrank all songs, keep top-k"]
+        SCORE --> RANK
+
+        RANK --> BRANCH{"explain_fn set?"}
+        BRANCH -- "no (default)" --> TEMPLATE["Template explanation\n'; '.join(reasons)"]
+
+        BRANCH -- "yes (jazz demo)" --> SANITIZE["sanitize + delimit\nprompt-injection guard"]
+        SANITIZE --> LLM["generate_explanation()\nexplain.py — Gemini agent call"]
+        LLM --> TRUST{"Evaluator:\ntrustworthy?\n(not blocked/truncated/empty)"}
+        TRUST -- "no" --> TEMPLATE
+        TRUST -- "yes" --> CAP["enforce length cap"]
+    end
+
+    PROF --> SCORE
+    TEMPLATE --> OUT
+    CAP --> OUT
+
+    OUT["Output\nprinted (song, score, explanation)\nmain.py"]
+
+    subgraph CHECK["Human / Testing checkpoints"]
+        UNIT["tests/test_recommender.py\npytest unit tests"]
+        ADV["main.py adversarial profiles\nconflicting / empty / out-of-range /\nnonexistent-taste inputs"]
+        FALLBACK["explain.py fallback design\n(any LLM failure -> template, never breaks output)"]
+    end
+
+    UNIT -.validates.-> SCORE
+    UNIT -.validates.-> RANK
+    ADV -.stress-tests.-> SCORE
+    ADV -.stress-tests.-> RANK
+    FALLBACK -.guards.-> LLM
