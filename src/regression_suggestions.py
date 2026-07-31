@@ -3,33 +3,36 @@ Interactive entry point for the Regression Suggestions system.
 
 Prompts the listener for a free-text description of their taste, parses it
 into a UserProfile via src/parse_preferences.py's structured-prompting (LLM)
-extraction, and prints the top 10 best-matching songs from the catalog along
-with LLM-generated explanations (src/explain.py).
+extraction — along with the LLM's own confidence in that extraction — and
+prints the top 10 best-matching songs from the catalog along with
+LLM-generated explanations (src/explain.py).
 
 Run with: python -m src.regression_suggestions
 """
+
+from typing import Optional, Tuple
 
 from src.recommender import load_songs, recommend_songs, UserProfile
 from src.explain import generate_explanation
 from src.parse_preferences import parse_preferences
 
 
-def get_user_profile() -> UserProfile:
+def get_user_profile() -> Tuple[UserProfile, Optional[float]]:
     description = input(
         "Describe your music taste (mood, genre, artists, energy, etc.): "
     ).strip()
 
     if not description:
-        return UserProfile()
+        return UserProfile(), None
 
-    profile = parse_preferences(description)
-    if profile is None:
+    parsed = parse_preferences(description)
+    if parsed is None:
         print(
             "\nCouldn't parse that into preferences (no API key, network "
             "issue, etc.) — showing generic recommendations instead."
         )
-        return UserProfile()
-    return profile
+        return UserProfile(), None
+    return parsed
 
 
 def print_top_recommendations(profile: UserProfile, songs: list, k: int = 10) -> None:
@@ -46,7 +49,12 @@ def print_top_recommendations(profile: UserProfile, songs: list, k: int = 10) ->
 
 def main() -> None:
     songs = load_songs("data/songs.csv", "data/ai_songs.csv")
-    profile = get_user_profile()
+    profile, confidence = get_user_profile()
+
+    print(f"\nGenerated preferences: {profile}")
+    if confidence is not None:
+        print(f"LLM confidence in these preferences: {confidence:.0%}")
+
     print_top_recommendations(profile, songs)
 
 
