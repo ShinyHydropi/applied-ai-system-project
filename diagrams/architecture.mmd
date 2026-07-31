@@ -2,42 +2,45 @@ flowchart TD
     subgraph INPUT["Input"]
         CSV1[data/songs.csv]
         CSV2[data/ai_songs.csv]
-        PROF["UserProfile\n(preferences, incl. adversarial edge cases)"]
+        TEXT["Free-text taste description\n(regression_suggestions.py CLI prompt)"]
     end
 
-    CSV1 --> LOAD["load_songs()\nrecommender.py"]
+    CSV1 --> LOAD["load_songs()"]
     CSV2 --> LOAD
     LOAD --> SCORE
 
-    subgraph PROCESS["Process"]
-        SCORE["score_song()\nrule-based retriever\n(categorical + numeric MSE)"]
+    subgraph PARSE["Agent: structured-prompting parser"]
+        SANITIZE0["sanitize()\nprompt-injection guard"]
+        PARSEFN["parse_preferences()\nGemini call, JSON-schema output"]
+        PTRUST{"Evaluator:\ntrustworthy?"}
+        TEXT --> SANITIZE0 --> PARSEFN --> PTRUST
+        PTRUST -- "no / error /\nempty description" --> DEFAULT["UserProfile()\nconfidence = None"]
+        PTRUST -- "yes" --> PARSEDPROF["Parsed UserProfile\n+ self-reported confidence"]
+    end
+
+    subgraph PROCESS["Retriever + Ranker"]
+        SCORE["score_song()\nrule-based retriever"]
         RANK["recommend_songs()\nrank all songs, keep top-k"]
         SCORE --> RANK
-
-        RANK --> BRANCH{"explain_fn set?"}
-        BRANCH -- "no (default)" --> TEMPLATE["Template explanation\n'; '.join(reasons)"]
-
-        BRANCH -- "yes (jazz demo)" --> SANITIZE["sanitize + delimit\nprompt-injection guard"]
-        SANITIZE --> LLM["generate_explanation()\nexplain.py — Gemini agent call"]
-        LLM --> TRUST{"Evaluator:\ntrustworthy?\n(not blocked/truncated/empty)"}
-        TRUST -- "no" --> TEMPLATE
+        RANK --> SANITIZE1["sanitize()\nprompt-injection guard"]
+        SANITIZE1 --> LLM["generate_explanation()\nGemini agent call"]
+        LLM --> TRUST{"Evaluator:\ntrustworthy?"}
+        TRUST -- "no" --> TEMPLATE["Template explanation\n'; '.join(reasons)"]
         TRUST -- "yes" --> CAP["enforce length cap"]
     end
 
-    PROF --> SCORE
+    DEFAULT --> SCORE
+    PARSEDPROF --> SCORE
     TEMPLATE --> OUT
     CAP --> OUT
 
-    OUT["Output\nprinted (song, score, explanation)\nmain.py"]
+    OUT["Output:\nprints generated profile, confidence %,\nand top 10 recommendations"]
 
     subgraph CHECK["Human / Testing checkpoints"]
-        UNIT["tests/test_recommender.py\npytest unit tests"]
-        ADV["main.py adversarial profiles\nconflicting / empty / out-of-range /\nnonexistent-taste inputs"]
-        FALLBACK["explain.py fallback design\n(any LLM failure -> template, never breaks output)"]
+        CONF["Confidence % printed to the user"]
+        FALLBACK["gemini_client.py fallback design"]
     end
 
-    UNIT -.validates.-> SCORE
-    UNIT -.validates.-> RANK
-    ADV -.stress-tests.-> SCORE
-    ADV -.stress-tests.-> RANK
+    PARSEDPROF --> CONF
     FALLBACK -.guards.-> LLM
+    FALLBACK -.guards.-> PARSEFN
