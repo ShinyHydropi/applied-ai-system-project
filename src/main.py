@@ -11,25 +11,11 @@ You will implement the functions in recommender.py:
 
 from src.recommender import load_songs, recommend_songs, UserProfile
 from src.explain import generate_explanation
-
-
-def profile_to_prefs(profile: UserProfile) -> dict:
-    """Converts a UserProfile into the dict shape recommend_songs expects."""
-    return {
-        "artist": profile.favorite_artist,
-        "genre": profile.favorite_genre,
-        "mood": profile.favorite_mood,
-        "energy": profile.target_energy,
-        "tempo_bpm": profile.target_bpm,
-        "valence": profile.target_valence,
-        "danceability": profile.target_danceability,
-        "acousticness": profile.target_acousticness,
-    }
+from src.parse_preferences import parse_preferences
 
 
 def print_recommendations(label: str, profile: UserProfile, songs: list, k: int = 5, explain_fn=None) -> None:
-    user_prefs = profile_to_prefs(profile)
-    recommendations = recommend_songs(user_prefs, songs, k=k, explain_fn=explain_fn)
+    recommendations = recommend_songs(profile, songs, k=k, explain_fn=explain_fn)
 
     print(f"\n=== {label} ===\n")
     for rec in recommendations:
@@ -60,7 +46,16 @@ def main() -> None:
         target_danceability=0.6,
         target_acousticness=0.1,
     )
-    jazz = UserProfile(
+    # Demo of the structured-prompting input parser (src/parse_preferences.py):
+    # the jazz profile is extracted from a free-text taste description
+    # instead of being hand-filled, falling back to the literal UserProfile
+    # below if parsing fails (no API key, network error, etc.).
+    jazz_description = (
+        "I love relaxed, easy-going jazz — coffee shop afternoons, not "
+        "club energy. Warm, mostly acoustic instrumentation, and nothing "
+        "too danceable."
+    )
+    jazz = parse_preferences(jazz_description) or UserProfile(
         favorite_genre="jazz",
         favorite_mood="relaxed",
         target_energy=0.4,
