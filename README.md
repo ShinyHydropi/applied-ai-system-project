@@ -132,6 +132,47 @@ Velvet Nights by Marlowe Grey - Score: 0.08
 Because: genre doesn't match (wanted jazz, got r&b); mood doesn't match (wanted relaxed, got romantic); energy target 0.3, actual 0.5 (off by 0.20); tempo_bpm target 80.0, actual 84.0 (off by 4.00); valence target 0.6, actual 0.7 (off by 0.10); danceability target 0.2, actual 0.68 (off by 0.48); acousticness target 0.9, actual 0.42 (off by 0.48)
 ```
 
+### Sample 3
+```
+python -m src.regression_suggestions
+Describe your music taste (mood, genre, artists, energy, etc.): I only like music by the Beatles or music that is at least similar in genre, mood, or energy as the Beatles.
+
+Generated preferences: UserProfile(favorite_artist='The Beatles', favorite_genre='rock', favorite_mood='nostalgic', target_energy=0.6, target_bpm=120.0, target_valence=0.7, target_danceability=0.6, target_acousticness=0.5)
+LLM confidence in these preferences: 80%
+
+=== Top 10 recommendations ===
+
+Golden Hour Highway by Crimson Fade - Score: 0.01
+Because: While the artist and genre don't match your preferences, "Golden Hour Highway" by Crimson Fade hits the nostalgic mood you wanted.
+
+Velvet Nights by Marlowe Grey - Score: 0.02
+Because: artist doesn't match (wanted The Beatles, got Marlowe Grey); genre doesn't match (wanted rock, got r&b); mood doesn't match (wanted nostalgic, got romantic); energy target 0.6, actual 0.5 (off by 0.10); tempo_bpm target 120.0, actual 84.0 (off by 36.00); valence target 0.7, actual 0.7 (off by 0.00); danceability target 0.6, actual 0.68 (off by 0.08); acousticness target 0.5, actual 0.42 (off by 0.08)
+
+Island Breeze by Solar Tide - Score: 0.03
+Because: While it’s not The Beatles or rock, this playful reggae track by Solar Tide comes pretty close to your target energy!
+
+Rooftop Lights by Indigo Parade - Score: 0.03
+Because: Even though the artist, genre, and mood don't match your preferences for The Beatles and nostalgic rock, you might still enjoy the tempo and energy of "Rooftop Lights" by Indigo Parade!
+
+Midnight Coding by LoRoom - Score: 0.03
+Because: While it misses your rock and nostalgic preferences for The Beatles, "Midnight Coding" by LoRoom is a chill lofi track with a great matching danceability.
+
+Desert Bloom by Wandering Roots - Score: 0.03
+Because: artist doesn't match (wanted The Beatles, got Wandering Roots); genre doesn't match (wanted rock, got folk); mood doesn't match (wanted nostalgic, got warm); energy target 0.6, actual 0.45 (off by 0.15); tempo_bpm target 120.0, actual 96.0 (off by 24.00); valence target 0.7, actual 0.74 (off by 0.04); danceability target 0.6, actual 0.48 (off by 0.12); acousticness target 0.5, actual 0.8 (off by 0.30)
+
+Night Drive Loop by Neon Echo - Score: 0.04
+Because: I recommend "Night Drive Loop" by Neon Echo, though it's a moody synthwave track rather than the nostalgic Beatles rock song you wanted.
+
+Focus Flow by LoRoom - Score: 0.04
+Because: Even though "Focus Flow" by LoRoom doesn't match your requested artist, genre, or mood, it hits your exact danceability preference!
+
+Sunrise City by Neon Echo - Score: 0.04
+Because: Although "Sunrise City" by Neon Echo misses your preferences for The Beatles, rock music, and a nostalgic mood, its 118 BPM tempo is very close to your target!
+
+Coffee Shop Stories by Slow Stereo - Score: 0.04
+Because: I picked "Coffee Shop Stories" by Slow Stereo, but it misses your preferences for The Beatles, rock, nostalgic mood, and faster tempo.
+```
+
 ---
 
 ## Design Decisions

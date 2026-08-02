@@ -1,58 +1,31 @@
 # 🎧 Model Card: Music Recommender Simulation
 
-## 1. Model Name  
+## Limitations and Bias 
 
-Give your model a short, descriptive name.  
-Example: **Regression Suggestions 1.0**  
-
----
-
-## 2. Intended Use  
-
-This system is intendended to be used to find new music for a user to enjoy. Songs output by this system are ranked according to user preferences. 
+The preference parser is not trained on training data with prompts and their intended UserProfiles. This runs a risk of confident wrong, and
+unconfident correct UserProfiles. This model also generates a UserProfile when the input is not even a description of music preferences.
 
 ---
 
-## 3. How the Model Works  
+## Proper use  
 
-This model is a rule-based recommendation system that scores each song based on how closely it matches a user's preferences. For numerical features, score is calculated with mean square error (MSE) in order to prioritize matching all features closely over matching some features exactly and some weakly. For categorical features exact matches are treated as an error of 0 and anything else as an error of 0.2. This fixed error may result in the recommender worrying more about matching numerical features than categorical features. Rankings are determined by lowest to highest MSE.
-
----
-
-## 4. Data  
-
-The dataset used by the model is the initial set of songs and 10 AI generated songs. 
+This model is particularly effective when given a description of music preferences. It can pick up on key fields of the UserProfile, and the
+UserProfiles it produces have some variance. When given prompts that contained word that might appear in a description of preferences, the model
+would sometimes create UserProfiles as if the context was music. Prompts that were of other contexts entirely usually produced empty
+UserProfiles.
 
 ---
 
-## 5. Strengths  
+## Surprises  
 
-This model is particularly effective at ranking songs that more hollistically match the profile higher than songs which only match a few features very closely. 
-
----
-
-## 6. Limitations and Bias 
-
-One weakness of the model is that it cannot dynamically tune itself to improve its recommendations. Thus, it must rely on a user's own interpretation of features. Additionally, it cannot adapt with a change in user preferences without the user adjusting the themselves  
+Given the same prompt, the model generated a UserProfile with all 8 fields filled and a UserProfile with only 2 fields filled. Also, the model
+was able to fill fields based only on the style of a given band (The Beatles). This meant it had enough information about Beatles songs to
+confidently assert fields like tempo and acousticness.
 
 ---
 
-## 7. Evaluation  
+## AI Collaboration  
 
-Pop: The model correctly surfaced songs with high energy, high valence, high danceability, and low acousticness, matching the upbeat "happy" mood the profile targeted.
-
-Rock: The model correctly searched for common rock features such as high energy, low acousticness, and an intense mood.
-
-Jazz: The model correctly searced for common jazz features such as high acousticness, middling danceability, and a relaxed mood.
-
----
-
-## 8. Future Work  
-
-A future version of this model could use a neural network, sentiment analysis, or other architecture to more accurately evaluate error between categorical features.
-
----
-
-## 9. Personal Reflection  
-
-Through this assignment, I learned that recommendation models have to balance the importance of many features when recommending songs to users. In working on this project, I continued honing my skills with prompting AI assistants on generating code. I have noticed that the AI is requiring less prompts to acheive the results I am intending.
+A helpful instance of an AI recommendation was combining the AI helper functions into a separate module. This simplified the code around AI
+calls (preference parsing and explanation generation). An unhelpful suggestion was using dicts instead of UserProfiles for recommending songs.
+This would require helper functions in the rest of the logic to switch between the two objects.
