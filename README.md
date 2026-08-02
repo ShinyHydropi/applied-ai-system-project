@@ -148,11 +148,3 @@ I tested a few different prompts to get the desired level of creativity in UserP
 field of the UserProfile even if it was not hinted at in the prompt. Prompting AI with "do not invent any facts" helped but it would not fill
 in fields that were not explicitly mentioned in the description. The prompt that let the AI infer just enough included "It is okay to interpret
 the description slightly creatively, but do not include fields that you have no confidence in."
-
----
-
-## Reflection
-
-Through this assignment, I learned that small changes in how you prompt AI can have an important impact on its output. I also learned how to
-integrate generative AI agent calls into code using API. Furthermare, working on this project has strengthed my ability to prompt AI
-assistants. These skills will be invaluable as tech careers expect proficiency in many CS subjects.
